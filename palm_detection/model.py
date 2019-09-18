@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import Input, Conv2D, Conv2DTranspose, Add, ReLU, MaxPooling2D, Reshape, Lambda, Activation, DepthwiseConv2D, Conv2D, Concatenate
-import tesnorflow.keras.models import Model
+from tensorflow.keras.models import Model
 import tensorflow as tf
 import numpy as np
 
@@ -20,11 +20,11 @@ def conv_blocks_with_pooling(x, num_filter, padding=False, pad_value=None):
     if padding:
         paddings = tf.constant([[0,0],[0,0],[0,0],[0,pad_value]])
         shortcut = Lambda(lambda x: tf.pad(x, paddings, "CONSTANT"))(shortcut) # CONSTANT / REFLECT / SYMMETRIC
-        x = DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', use_bias=True)(x)
+        x = DepthwiseConv2D(kernel_size=(3, 3), strides=(2, 2), padding='same', use_bias=True)(x)
         x = Conv2D(num_filter, kernel_size=(1, 1), strides=(1, 1), padding='valid', use_bias=True)(x)
         x = Add()([x, shortcut])
     else:
-        x = DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', use_bias=True)(x)
+        x = DepthwiseConv2D(kernel_size=(3, 3), strides=(2, 2), padding='same', use_bias=True)(x)
         x = Conv2D(num_filter, kernel_size=(1, 1), strides=(1, 1), padding='valid', use_bias=True)(x)
         x = Add()([x, shortcut])
     return x
@@ -50,8 +50,8 @@ def palm_detection_model(input_size=(256, 256, 3)):
     shortcut = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(shortcut)
     paddings = tf.constant([[0,0],[0,0],[0,0],[0,128]])
     shortcut = Lambda(lambda x: tf.pad(x, paddings, "CONSTANT"))(shortcut) # CONSTANT / REFLECT / SYMMETRIC
-    x = DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', use_bias=True)(x)
-    x = Conv2D(num_filter, kernel_size=(1, 1), strides=(1, 1), padding='valid', use_bias=True)(x)
+    x = DepthwiseConv2D(kernel_size=(3, 3), strides=(2, 2), padding='same', use_bias=True)(x)
+    x = Conv2D(256, kernel_size=(1, 1), strides=(1, 1), padding='valid', use_bias=True)(x)
     x = Add()([x, shortcut])
 
     # block 25 ~ 32 (1, 16, 16, 256)
@@ -61,7 +61,7 @@ def palm_detection_model(input_size=(256, 256, 3)):
 
     shortcut = x
     shortcut = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same')(shortcut)
-    x = DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', use_bias=True)(x)
+    x = DepthwiseConv2D(kernel_size=(3, 3), strides=(2, 2), padding='same', use_bias=True)(x)
     x = Conv2D(256, kernel_size=(1, 1), strides=(1, 1), padding='valid', use_bias=True)(x)
     x = Add()([x, shortcut])
 
@@ -84,7 +84,7 @@ def palm_detection_model(input_size=(256, 256, 3)):
     
     x = ReLU()(x)
     shortcut_4 = x # (1, 16, 16, 256)
-    x = Conv2DTranspose(128, kernel_size=(2, 2), strides=(1, 1), padding='same', use_bias=True)(x)
+    x = Conv2DTranspose(128, kernel_size=(2, 2), strides=(2, 2), padding='same', use_bias=True)(x)
     x = ReLU()(x)
     x = Add()([x, shortcut_1])
 
@@ -100,20 +100,20 @@ def palm_detection_model(input_size=(256, 256, 3)):
     classificator_16 = Conv2D(2, kernel_size=(1, 1), strides=(1, 1), padding='same', use_bias=True, name='classificator_16')(shortcut_4)
     classificator_32 = Conv2D(6, kernel_size=(1, 1), strides=(1, 1), padding='same', use_bias=True, name='classificator_32')(shortcut_3)
     #### Reshape and Concatenation
-    classificator_8 = Reshape(target_size=(-1, 1))(classificator_8) # (1, 2048, 1)
-    classificator_16 = Reshape(target_size=(-1, 1))(classificator_16) # (1, 512, 1)
-    classificator_32 = Reshape(target_size=(-1, 1))(classificator_32) # (1, 384, 1)
-    classificator_concat = Concatenate(axis=-1, name='classificators')([classificator_8, classificator_16, classificator_32]) # (1, 2944, 1)
+    classificator_8 = Reshape(target_shape=(-1, 1))(classificator_8) # (1, 2048, 1)
+    classificator_16 = Reshape(target_shape=(-1, 1))(classificator_16) # (1, 512, 1)
+    classificator_32 = Reshape(target_shape=(-1, 1))(classificator_32) # (1, 384, 1)
+    classificator_concat = Concatenate(axis=1, name='classificators')([classificator_8, classificator_16, classificator_32]) # (1, 2944, 1)
     
     ### Last block - Regressors
     regressor_8 = Conv2D(36, kernel_size=(1, 1), strides=(1, 1), padding='same', use_bias=True, name='regressor_8')(x)
     regressor_16 = Conv2D(36, kernel_size=(1, 1), strides=(1, 1), padding='same', use_bias=True, name='regressor_16')(shortcut_4)
     regressor_32 = Conv2D(108, kernel_size=(1, 1), strides=(1, 1), padding='same', use_bias=True, name='regressor_32')(shortcut_3)
     #### Reshape and Concatenation
-    regressor_8 = Reshape(target_size=(-1, 18))(regressor_8) # (1, 2048, 18)
-    regressor_16 = Reshape(target_size=(-1, 18))(regressor_16) # (1, 512, 18)
-    regressor_32 = Reshape(target_size=(-1, 18))(regressor_32) # (1, 384, 18)
-    regressor_concat = Concatenate(axis=-1, name='regressors')([regressor_8, regressor_16, regressor_32])
+    regressor_8 = Reshape(target_shape=(-1, 18))(regressor_8) # (1, 2048, 18)
+    regressor_16 = Reshape(target_shape=(-1, 18))(regressor_16) # (1, 512, 18)
+    regressor_32 = Reshape(target_shape=(-1, 18))(regressor_32) # (1, 384, 18)
+    regressor_concat = Concatenate(axis=1, name='regressors')([regressor_8, regressor_16, regressor_32])
 
     model = Model(inputs, [regressor_concat, classificator_concat])
     return model
