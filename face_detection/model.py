@@ -2,7 +2,7 @@
 ## but it's "not same architecture" as shown in the above.
 
 import tensorflow as tf
-import tensorflow.keras.models import Model
+from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Conv2D, Add, ReLU, MaxPooling2D, Reshape, Lambda, Activation, DepthwiseConv2D
 import numpy as np
 
@@ -23,7 +23,7 @@ def conv_blocks(x, num_filter, pooling=False, channel_padding=False, pad_value=N
 
 def face_detection_model(input_size=(128, 128, 3)):
     inputs = Input(input_size)
-    x = Conv2D(24, kernel_size=(5, 5), strides=(2, 2), padding='same', use_bias=True)(x) # (1, 64, 64, 24)
+    x = Conv2D(24, kernel_size=(5, 5), strides=(2, 2), padding='same', use_bias=True)(inputs) # (1, 64, 64, 24)
     x = conv_blocks(x, 24, pooling=False, channel_padding=False) # (1, 64, 64, 24)
     x = conv_blocks(x, 28, pooling=False, channel_padding=True, pad_value=4) # (1, 64, 64, 28)
     x = conv_blocks(x, 32, pooling=True, channel_padding=True, pad_value=4) # (1, 32, 32, 32)

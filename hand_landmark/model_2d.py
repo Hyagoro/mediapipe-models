@@ -50,11 +50,11 @@ def hand_landmark_2d_model(input_size=(256, 256, 3)):
     
     # block 1 ~ 9 (1, 128, 128, 16)
     x = conv_blocks(x, 16, activation='prelu', num_iterations=8)
-    x = conv_blocks_with_pooling(x, 16, activation='prelu', padding=True, pad_value=16)
+    x = conv_blocks_with_pooling(x, 32, activation='prelu', padding=True, pad_value=16)
 
     # block 10 ~ 18 (1, 64, 64, 32)
     x = conv_blocks(x, 32, activation='prelu', num_iterations=8)
-    x = conv_blocks_with_pooling(x, 32, activation='prelu', padding=True, pad_value=32)
+    x = conv_blocks_with_pooling(x, 64, activation='prelu', padding=True, pad_value=32)
 
     # block 19 ~ 27 (1, 32, 32, 64)
     x = conv_blocks(x, 64, activation='prelu', num_iterations=8)
@@ -71,15 +71,15 @@ def hand_landmark_2d_model(input_size=(256, 256, 3)):
 
     # block 28 ~ 36 (1, 16, 16, 256)
     x = conv_blocks(x, 256, activation='prelu', num_iterations=8)
-    x = conv_blocks_with_pooling(x, 128, activation='prelu', padding=False)
+    x = conv_blocks_with_pooling(x, 256, activation='prelu', padding=False)
 
     # block 37 ~ 45 (1, 8, 8, 256)
     x = conv_blocks(x, 256, activation='prelu', num_iterations=8)
-    x = conv_blocks_with_pooling(x, 128, activation='prelu', padding=False)
+    x = conv_blocks_with_pooling(x, 256, activation='prelu', padding=False)
 
     # block 46 ~ 54 (1, 4, 4, 256)
     x = conv_blocks(x, 256, activation='prelu', num_iterations=8)
-    x = conv_blocks_with_pooling(x, 128, activation='prelu', padding=False)
+    x = conv_blocks_with_pooling(x, 256, activation='prelu', padding=False)
 
     # block 55 ~ 63 (1, 2, 2, 256)
     x = conv_blocks(x, 256, activation='prelu', num_iterations=8)

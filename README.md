@@ -10,12 +10,13 @@ Google Mediapipe public TFLite models implemented using Tensorflow (https://medi
     * Hand Landmark 2D,3D
         - Model Architecture (OK)
         - Set Pretrained weights (OK)
-        - Convert TFLite to frozen graph(pb file) (TODO)
+        - Convert TFLite to frozen graph (OK)
     
     * Palm(Hand) Detection
         - Model Architecture (OK)
-        - Set Pretrained weights (TODO)
-        - Convert TFLite to frozen graph(pb file) (TODO)
+        - Set Pretrained weights (OK)
+        - Convert TFLite to frozen graph (OK)
+        - Create TFLite model without custom operations (OK)
 
 2. Face Detection
     * Related links
@@ -23,9 +24,9 @@ Google Mediapipe public TFLite models implemented using Tensorflow (https://medi
         - Github: [Mediapipe: Face detection](https://github.com/google/mediapipe/blob/master/mediapipe/docs/face_detection_mobile_gpu.md)
 
     * Face Detection
-        - Model Architecture (OK)
+        - Model Architecture (TODO)
         - Set Pretrained weights (TODO)
-        - Convert TFLite to frozen graph(pb file) (TODO)
+        - Convert TFLite to frozen graph (TODO)
 
 3. Hair Segmentation
     * Related links
@@ -34,5 +35,7 @@ Google Mediapipe public TFLite models implemented using Tensorflow (https://medi
 
     * Hair Segmentation
         - Model Architecture (TODO)
+            - Define custom layers "MaxUnpooling2D" & "MaxPoolingWithArgmax2D"
         - Set Pretrained weights (TODO)
         - Convert TFLite to frozen graph(pb file) (TODO)
+        - Create TFLite model without custom operations (TODO)
