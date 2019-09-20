@@ -49,7 +49,7 @@ def convert_to_pb(model, out_path):
     output_names = [node.op.name for node in model.outputs]
     frozen_def = tf.graph_util.convert_variables_to_constants(sess, sess.graph_def, output_names)
     with tf.gfile.GFile(out_path, 'w') as f:
-        f.write(graph_def.SerializeToString())
+        f.write(frozen_def.SerializeToString())
     print("[INFO] Save frozen graph model in %s"%(out_path))
 
 def convert_to_tflite(pb_file_path, out_path):

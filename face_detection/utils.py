@@ -29,21 +29,7 @@ def set_pretrained_weights(model, weights_dict, layer_names):
             pretrained_weights.append(bias_weight)
             layer = model.get_layer(name)
             layer.set_weights(pretrained_weights)
-        
-        elif name.find('p_re_lu') != -1:
-            pretrained_weights = []
-            alpha_weight = weights_dict.get(name+'/Alpha')
-            pretrained_weights.append(alpha_weight)
-            
-            layer = model.get_layer(name)
-            layer.set_weights(pretrained_weights)
     print("[INFO] Set all pretrained weights")
-
-def display_nodes(nodes):
-    for i, node in enumerate(nodes):
-        print('%d %s %s' % (i, node.name, node.op))
-        for idx, n in enumerate(node.input):
-            print(u'└─── %d ─ %s' % (idx, n))
 
 def convert_to_pb(model, out_path):
     sess = K.get_session()
@@ -52,14 +38,3 @@ def convert_to_pb(model, out_path):
     with tf.gfile.GFile(out_path, 'w') as f:
         f.write(frozen_def.SerializeToString())
     print("[INFO] Save frozen graph model in %s"%(out_path))
-
-def convert_to_tflite(pb_file_path, out_path, mode='2d'):
-    input_names = ['input_1']
-    if mode == '2d':
-        output_names = ['ld_21_2d/Reshape', 'output_handflag/Reshape']
-    else:
-        output_names = ['ld_21_3d/Reshape', 'output_handflag/Reshape']
-    converter = tf.lite.TFLiteConverter.from_frozen_graph(pb_file_path, input_names, output_names)
-    tflite_model = converter.convert()
-    open(out_path, "wb").write(tflite_model)
-    print("[INFO] Save TFLite model in %s"%(out_path))

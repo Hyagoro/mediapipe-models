@@ -24,9 +24,9 @@ Google Mediapipe public TFLite models implemented using Tensorflow (https://medi
         - Github: [Mediapipe: Face detection](https://github.com/google/mediapipe/blob/master/mediapipe/docs/face_detection_mobile_gpu.md)
 
     * Face Detection
-        - Model Architecture (TODO)
-        - Set Pretrained weights (TODO)
-        - Convert TFLite to frozen graph (TODO)
+        - Model Architecture (OK)
+        - Set Pretrained weights (OK)
+        - Convert TFLite to frozen graph (OK)
 
 3. Hair Segmentation
     * Related links
