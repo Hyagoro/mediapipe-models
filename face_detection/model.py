@@ -40,7 +40,7 @@ def face_detection_model(input_size=(128, 128, 3)):
     x = conv_blocks_with_pooling(x, 32, pad_value=4) # (1, 32, 32, 32)
     x = conv_blocks(x, 36, channel_padding=True, pad_value=4) # (1, 32, 32, 36)
     x = conv_blocks(x, 42, channel_padding=True, pad_value=6) # (1, 32, 32, 42)
-    x = conv_blocks(x, 48, channel_padding=True, pad_value=6) # (1, 16, 16, 48)
+    x = conv_blocks_with_pooling(x, 48, pad_value=6) # (1, 16, 16, 48)
     x = conv_blocks(x, 56, channel_padding=True, pad_value=8) # (1, 16, 16, 56)
     x = conv_blocks(x, 64, channel_padding=True, pad_value=8) # (1, 16, 16, 64)
     x = conv_blocks(x, 72, channel_padding=True, pad_value=8) # (1, 16, 16, 72)
@@ -70,16 +70,17 @@ def face_detection_model(input_size=(128, 128, 3)):
     classificator_8 = Conv2D(2, kernel_size=(1, 1), strides=(1, 1), padding='same', use_bias=True)(shortcut_1)
     classificator_16 = Conv2D(6, kernel_size=(1, 1), strides=(1, 1), padding='same', use_bias=True)(x)
     ### Classificators: Reshape and Concatenation
-    classificator_8 = Reshape(target_shape=(512,1))(classificator_8) # (1, 512, 1)
-    classificator_16 = Reshape(target_shape=(384,1))(classificator_16) # (1, 384, 1)
+    classificator_8 = Reshape(target_shape=(-1,1))(classificator_8) # (1, 512, 1)
+    classificator_16 = Reshape(target_shape=(-1,1))(classificator_16) # (1, 384, 1)
+    #     classificator_concat = Lambda(lambda x: tf.concat(x, axis=1))([
     classificator_concat = Concatenate(axis=1, name='classificators')([classificator_8, classificator_16])
 
     ## Regressors
     regressor_8 = Conv2D(32, kernel_size=(1, 1), strides=(1, 1), padding='same', use_bias=True)(shortcut_1)
     regressor_16 = Conv2D(96, kernel_size=(1, 1), strides=(1, 1), padding='same', use_bias=True)(x)
     ### Regressors: Reshape and Concatenation
-    regressor_8 = Reshape(target_shape=(512,1))(regressor_8) # (1, 512, 1)
-    regressor_16 = Reshape(target_shape=(384,1))(regressor_16) # (1, 384, 1)
+    regressor_8 = Reshape(target_shape=(-1,1))(regressor_8) # (1, 512, 1)
+    regressor_16 = Reshape(target_shape=(-1,1))(regressor_16) # (1, 384, 1)
     regressor_concat = Concatenate(axis=1, name='regressors')([regressor_8, regressor_16])
 
     model = Model(inputs, [regressor_concat, classificator_concat])
